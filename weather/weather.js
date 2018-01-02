@@ -1,23 +1,25 @@
 const request = require('request');
 
-var getWeather = () => {
+var getWeather = (lat,lng, callback) => {
+    
+
     request({
-        url:`https://api.forecast.io/forecast/APIKey/53.37021069999999,-6.2856415`,
+        url:`https://api.forecast.io/forecast/APIKEY/${lat},${lng}`,
         json: true
     },(error, response, body) => {
         if(error){
-            console.log('unable to connect to forecast.io servers');
+            callback('unable to connect to forecast.io servers');
+        }
+        else if(response.statusCode ===400){
+            callback('Unable to fetch weather.');
         }
         else if(! error && response.statusCode === 200){
-            console.log(`The temperature in :${body.timezone} is ${body.currently.temperature} fareheit`);
-            // console.log(`latitude is: ${body.results[0].geometry.location.lat}`);
-            // console.log(`longitude is: ${body.results[0].geometry.location.lng}`);
-            // //console.log(JSON.stringify(response, undefined, 2));
-        }
-        else{
-            console.log('Unable to fetch weather');
-        }
-    }); 
-
+            callback(undefined,{
+                temperature: body.currently.temperature,
+                apparentTemperature: body.currently.apparentTemperature
+        });
+        
+    }
+});
 };
 module.exports.getWeather = getWeather;
